@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CAT 2026 Mock Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;color:#0f172a;font-size:14px;display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:200px;min-width:200px;background:#1a2f5a;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh}
+.sidebar-logo{padding:20px 16px 12px}
+.sidebar-logo h1{color:#fff;font-size:15px;font-weight:800;line-height:1.3}
+.sidebar-logo p{color:#64748b;font-size:11px;margin-top:4px}
+.sidebar-stats{padding:10px 12px;margin:0 8px 12px;background:rgba(255,255,255,0.06);border-radius:10px}
+.sidebar-stats .ss-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.sidebar-stats .ss-row:last-child{border-bottom:none}
+.sidebar-stats .ss-label{color:#94a3b8;font-size:11px}
+.sidebar-stats .ss-val{font-weight:800;font-size:13px}
+.nav-section{padding:6px 12px 4px;color:#475569;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:#94a3b8;font-size:13px;font-weight:600;border-left:3px solid transparent;transition:all 0.15s;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff}
+.nav-item.active{background:rgba(37,99,235,0.2);color:#fff;border-left-color:#2563eb}
+.nav-item .nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-bottom{margin-top:auto;padding:12px}
+.export-btn{width:100%;padding:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.export-btn:hover{background:rgba(255,255,255,0.14);color:#fff}
+
+/* MAIN */
+.main{flex:1;overflow-x:hidden}
+.page{display:none;padding:20px}
+.page.active{display:block}
+.page-header{margin-bottom:18px}
+.page-header h2{font-size:18px;font-weight:800;color:#0f172a}
+.page-header p{color:#64748b;font-size:12px;margin-top:3px}
+.top-bar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+
+/* BUTTONS */
+.btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.btn-blue{background:#2563eb;color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-red{background:#dc2626;color:#fff}.btn-red:hover{background:#b91c1c}
+.btn-grey{background:#e2e8f0;color:#0f172a}.btn-grey:hover{background:#cbd5e1}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* FORM */
+.form-box{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 4px 20px rgba(0,0,0,0.07)}
+.form-title{font-size:14px;font-weight:700;margin-bottom:14px;color:#1a2f5a}
+.form-grid{display:grid;gap:10px;margin-bottom:12px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:1fr 1fr 1fr 2fr}
+.field label{display:block;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:8px 10px;border:1px solid #e2e8f0;border-radius:7px;font-size:13px;font-family:inherit;outline:none;background:#fff;transition:border 0.15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#2563eb}
+.field textarea{resize:vertical;height:65px}
+.sec-block{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:10px}
+.sec-block .sec-label{font-weight:800;font-size:12px;color:#1a2f5a;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sec-inputs{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.sec-inputs .field{flex:1;min-width:60px}
+.score-pill{background:#1a2f5a;color:#fff;border-radius:8px;padding:8px 12px;text-align:center;font-size:17px;font-weight:800;min-width:54px}
+.score-pill small{display:block;font-size:10px;color:#94a3b8;font-weight:400;margin-bottom:2px}
+.form-actions{display:flex;gap:8px;margin-top:16px}
+
+/* CARDS */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.04)}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.card-left{display:flex;gap:10px;align-items:flex-start;flex:1}
+.mock-badge{background:#1a2f5a;color:#fff;width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0}
+.card-meta .date{font-weight:700;font-size:13px}
+.card-meta .plat{color:#64748b;font-weight:400}
+.card-meta .note{font-size:12px;color:#64748b;margin-top:3px}
+.card-right{display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.sec-scores{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.sec-score{border-radius:10px;padding:10px;text-align:center;border:1px solid #e2e8f0}
+.sec-score .ssl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.sec-score .ssv{font-size:22px;font-weight:800;line-height:1}
+.sec-score .sss{font-size:10px;color:#64748b;margin-top:3px}
+
+/* CHIPS */
+.chip{border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;white-space:nowrap}
+.chip-blue{background:#dbeafe;color:#1e40af}
+.chip-green{background:#dcfce7;color:#166534}
+.chip-red{background:#fee2e2;color:#991b1b}
+.chip-gold{background:#fef3c7;color:#92400e}
+.chip-purple{background:#ede9fe;color:#5b21b6}
+.chip-navy{background:#1a2f5a;color:#fff}
+
+.icon-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:5px 6px;border-radius:6px;transition:background 0.1s}
+.icon-btn:hover{background:#f1f5f9}
+
+/* ERROR LOG */
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter-btn{padding:5px 12px;border-radius:20px;border:1px solid #e2e8f0;cursor:pointer;font-size:12px;font-weight:600;background:#fff;color:#64748b;font-family:inherit;transition:all 0.15s}
+.filter-btn.active{background:#1a2f5a;color:#fff;border-color:#1a2f5a}
+.error-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.error-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.error-tags{display:flex;gap:5px;align-items:center;flex-wrap:wrap;flex:1}
+.error-body{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.mini-card{border-radius:8px;padding:9px 11px}
+.mini-card .mc-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;margin-bottom:4px;letter-spacing:0.04em}
+.mini-card .mc-text{font-size:12px;color:#1e293b;line-height:1.4}
+.status-select{border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.dash-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px}
+.dash-card .dc-val{font-size:28px;font-weight:800;line-height:1}
+.dash-card .dc-label{font-size:13px;font-weight:700;margin-top:4px}
+.dash-card .dc-sub{font-size:11px;color:#64748b;margin-top:2px}
+.panel{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:14px}
+.panel-title{font-size:13px;font-weight:700;margin-bottom:14px;color:#1a2f5a;text-transform:uppercase;letter-spacing:0.05em}
+.trend-bars{display:flex;align-items:flex-end;gap:4px;height:100px}
+.trend-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.trend-bar{width:100%;border-radius:4px 4px 0 0}
+.trend-score{font-size:10px;font-weight:800}
+.trend-label{font-size:9px;color:#94a3b8}
+.err-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.err-bar-bg{flex:1;background:#f1f5f9;border-radius:4px;height:16px;overflow:hidden}
+.err-bar{height:100%;border-radius:4px;transition:width 0.5s}
+.err-type{font-size:11px;width:130px;flex-shrink:0;color:#374151}
+.err-count{font-size:13px;font-weight:800;width:22px;text-align:right}
+.status-row{display:flex;gap:10px}
+.status-box{flex:1;border-radius:10px;padding:14px;text-align:center}
+.status-box .sb-val{font-size:26px;font-weight:800}
+.status-box .sb-label{font-size:11px;font-weight:700;margin-top:3px}
+.empty{text-align:center;padding:50px 20px;color:#94a3b8}
+.empty .empty-icon{font-size:36px;margin-bottom:10px}
+.empty p{font-size:13px}
+
+/* MOBILE */
+@media(max-width:600px){
+  body{flex-direction:column}
+  .sidebar{width:100%;min-height:auto;height:auto;position:sticky;top:0;z-index:100;flex-direction:row;flex-wrap:wrap}
+  .sidebar-logo{padding:10px 12px 6px;flex:1}
+  .sidebar-logo h1{font-size:14px}
+  .sidebar-stats{display:none}
+  .nav-section{display:none}
+  .sidebar-nav{display:flex;flex-direction:row;overflow-x:auto;padding:4px 8px 8px;gap:4px;width:100%}
+  .nav-item{padding:7px 12px;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;font-size:12px}
+  .nav-item.active{border-left-color:transparent;border-bottom-color:#2563eb;background:rgba(37,99,235,0.15)}
+  .sidebar-bottom{display:none}
+  .main{flex:1}
+  .page{padding:14px}
+  .g3{grid-template-columns:1fr 1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .error-body{grid-template-columns:1fr}
+  .sec-scores{grid-template-columns:repeat(3,1fr)}
+  .dash-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h1>CAT 2026<br>Mock Tracker</h1>
+    <p>Sam · NSUT Delhi</p>
+  </div>
+  <div class="sidebar-stats">
+    <div class="ss-row"><span class="ss-label">Mocks</span><b class="ss-val" id="s-mocks" style="color:#60a5fa">0</b></div>
+    <div class="ss-row"><span class="ss-label">Errors</span><b class="ss-val" id="s-errors" style="color:#f87171">0</b></div>
+    <div class="ss-row"><span class="ss-label">To Revise</span><b class="ss-val" id="s-revise" style="color:#fbbf24">0</b></div>
+    <div class="ss-row"><span class="ss-label">Mastered</span><b class="ss-val" id="s-mastered" style="color:#4ade80">0</b></div>
+  </div>
+  <div class="nav-section">Navigate</div>
+  <div class="sidebar-nav">
+    <button class="nav-item active" onclick="switchPage('mocks')"><span class="nav-icon">📊</span>Mock Log</button>
+    <button class="nav-item" onclick="switchPage('errors')"><span class="nav-icon">❌</span>Error Log</button>
+    <button class="nav-item" onclick="switchPage('dash')"><span class="nav-icon">📈</span>Dashboard</button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="export-btn" onclick="exportData()">⬇ Export Backup</button>
+    <label class="export-btn" style="margin-top:6px;display:block;text-align:center;cursor:pointer">⬆ Import Backup<input type="file" accept=".json" onchange="importData(event)" style="display:none"/></label>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- MOCK LOG -->
+<div id="page-mocks" class="page active">
+  <div class="top-bar">
+    <div class="page-header">
+      <h2>Mock Log</h2>
+      <p>Track every mock attempt with section-wise breakdown</p>
+    </div>
+    <button class="btn btn-blue" onclick="openMockForm()">+ Add Mock</button>
+  </div>
+
+  <div id="mock-form" style="display:none" class="form-box">
+    <div class="form-title" id="mock-form-title">Add Mock</div>
+    <div class="form-grid g3">
+      <div class="field"><label>Date</label><input type="date" id="mf-date"/></div>
+      <div class="field"><label>Platform</label><input type="text" id="mf-platform" placeholder="TIME, CL, IMS..."/></div>
+      <div class="field"><label>Percentile</label><input type="number" id="mf-perc" placeholder="e.g. 97.5"/></div>
+    </div>
+    <div class="sec-block">
+      <div class="sec-label"><span>📘</span> VARC</div>
+      <div class="sec-inputs">
+        <div class="field"><label>Attempted</label><input type="number" id="mf-va" oninput="calcScore()" min="0"/></div>
+        <div class="field"><label>Correct</label><input type="number" id="mf-vc" oninput="calcScore()" min="0"/></div>
+        <div class="field"><label>Wrong</label><input type="number" id="mf-vw" oninput="calcScore()" min="0"/></div>
+        <div><div class="score-pill"><small>Score</small><span id="mf-vs">0</span></div></div>
+      </div>
+    </div>
+    <div class="sec-block">
+      <div class="sec-label"><span>🧩</span> LRDI</div>
+      <div class="sec-inputs">
+        <div class="field"><label>Attempted</label><input type="number" id="mf-la" oninput="calcScore()" min="0"/></div>
+        <div class="field"><label>Correct</label><input type="number" id="mf-lc" oninput="calcScore()" min="0"/></div>
+        <div class="field"><label>Wrong</label><input type="number" id="mf-lw" oninput="calcScore()" min="0"/></div>
+        <div><div class="score-pill"><small>Score</small><span id="mf-ls">0</span></div></div>
+      </div>
+    </div>
+    <div class="sec-block">
+      <div class="sec-label"><span>🔢</span> QA</div>
+      <div class="sec-inputs">
+        <div class="field"><label>Attempted</label><input type="number" id="mf-qa" oninput="calcScore()" min="0"/></div>
+        <div class="field"><label>Correct</label><input type="number" id="mf-qc" oninput="calcScore()" min="0"/></div>
+        <div class="field"><label>Wrong</label><input type="number" id="mf-qw" oninput="calcScore()" min="0"/></div>
+        <div><div class="score-pill"><small>Score</small><span id="mf-qs">0</span></div></div>
+      </div>
+    </div>
+    <div class="form-grid g2">
+      <div class="field"><label>Time Management (1–5)</label>
+        <select id="mf-time"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+      </div>
+      <div class="field"><label>Total Score</label>
+        <div class="score-pill" style="font-size:22px;padding:10px 14px"><span id="mf-total">0</span></div>
+      </div>
+    </div>
+    <div class="field"><label>Notes / Gut Feel</label><textarea id="mf-notes" placeholder="e.g. Rushed QA, wasted 12 min on LRDI Set 3..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-blue" onclick="saveMock()">Save Mock</button>
+      <button class="btn btn-grey" onclick="closeMockForm()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="mock-list"></div>
+</div>
+
+<!-- ERROR LOG -->
+<div id="page-errors" class="page">
+  <div class="top-bar">
+    <div class="page-header">
+      <h2>Error Log</h2>
+      <p>Every wrong question logged and tracked to mastery</p>
+    </div>
+    <button class="btn btn-red" onclick="openErrorForm()">+ Log Error</button>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterStatus('All',this)">All (<span id="f-all">0</span>)</button>
+    <button class="filter-btn" onclick="filterStatus('To Revise',this)" style="border-color:#fca5a5;color:#dc2626">To Revise (<span id="f-tr">0</span>)</button>
+    <button class="filter-btn" onclick="filterStatus('Revised Once',this)" style="border-color:#fcd34d;color:#d97706">Revised (<span id="f-ro">0</span>)</button>
+    <button class="filter-btn" onclick="filterStatus('Mastered',this)" style="border-color:#86efac;color:#16a34a">Mastered (<span id="f-m">0</span>)</button>
+    <select onchange="filterSection(this.value)" style="margin-left:auto;padding:6px 8px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;background:#fff">
+      <option value="All">All Sections</option>
+      <option>VARC</option><option>LRDI</option><option>QA</option>
+    </select>
+  </div>
+
+  <div id="error-form" style="display:none" class="form-box">
+    <div class="form-title" id="ef-title">Log Error</div>
+    <div class="form-grid g4">
+      <div class="field"><label>Mock #</label><input type="number" id="ef-mock" placeholder="#"/></div>
+      <div class="field"><label>Section</label><select id="ef-sec"><option>VARC</option><option>LRDI</option><option>QA</option></select></div>
+      <div class="field"><label>Q. No.</label><input type="text" id="ef-qno" placeholder="e.g. 14"/></div>
+      <div class="field"><label>Topic / Set Name</label><input type="text" id="ef-topic" placeholder="e.g. Seating Arrangement, RC Passage"/></div>
+    </div>
+    <div class="form-grid g2">
+      <div class="field"><label>Error Type</label>
+        <select id="ef-type">
+          <option>Wrong (Concept)</option><option>Wrong (Silly)</option><option>Wrong (Misread)</option>
+          <option>Correct but Unsure</option><option>Left (Time)</option><option>Left (Hard)</option>
+        </select>
+      </div>
+      <div class="field"><label>Status</label>
+        <select id="ef-status"><option>To Revise</option><option>Revised Once</option><option>Mastered</option></select>
+      </div>
+    </div>
+    <div class="form-grid g2">
+      <div class="field"><label>My Approach</label><textarea id="ef-my" placeholder="What did you do..."></textarea></div>
+      <div class="field"><label>Correct Approach</label><textarea id="ef-correct" placeholder="What should be done..."></textarea></div>
+    </div>
+    <div class="form-grid g2">
+      <div class="field"><label>Concept Gap</label><input type="text" id="ef-gap" placeholder="What exactly did you not know?"/></div>
+      <div class="field"><label>Action Item</label><input type="text" id="ef-action" placeholder="e.g. Revise Venn diagrams this week"/></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-red" onclick="saveError()">Save Error</button>
+      <button class="btn btn-grey" onclick="closeErrorForm()">Cancel</button>
+    </div>
+  </div>
+
+  <div id="error-list"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="page-dash" class="page">
+  <div class="page-header" style="margin-bottom:16px">
+    <h2>Dashboard</h2>
+    <p>Auto-updates from your Mock Log and Error Log</p>
+  </div>
+  <div class="dash-grid">
+    <div class="dash-card" style="border-left:4px solid #2563eb"><div class="dc-val" style="color:#2563eb" id="d-mocks">0</div><div class="dc-label">Mocks Done</div><div class="dc-sub">total logged</div></div>
+    <div class="dash-card" style="border-left:4px solid #16a34a"><div class="dc-val" style="color:#16a34a" id="d-best">—</div><div class="dc-label">Best Score</div><div class="dc-sub">out of ~228</div></div>
+    <div class="dash-card" style="border-left:4px solid #d97706"><div class="dc-val" style="color:#d97706" id="d-avg">—</div><div class="dc-label">Avg Score</div><div class="dc-sub">across all mocks</div></div>
+    <div class="dash-card" style="border-left:4px solid #7c3aed"><div class="dc-val" style="color:#7c3aed" id="d-perc">—</div><div class="dc-label">Avg Percentile</div><div class="dc-sub">target: 99+</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Score Trend</div>
+    <div class="trend-bars" id="trend-bars"><div style="color:#94a3b8;font-size:12px;padding:20px 0">No mocks logged yet.</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Section Averages</div>
+    <div id="sec-avgs" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Error Type Breakdown</div>
+    <div id="err-breakdown"></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Revision Status</div>
+    <div class="status-row">
+      <div class="status-box" style="background:#fee2e2"><div class="sb-val" style="color:#991b1b" id="d-tr">0</div><div class="sb-label" style="color:#991b1b">To Revise</div></div>
+      <div class="status-box" style="background:#fef9c3"><div class="sb-val" style="color:#854d0e" id="d-ro">0</div><div class="sb-label" style="color:#854d0e">Revised Once</div></div>
+      <div class="status-box" style="background:#dcfce7"><div class="sb-val" style="color:#166534" id="d-ma">0</div><div class="sb-label" style="color:#166534">Mastered</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const KEY='cat_tracker_v3';
+let data={mocks:[],errors:[]};
+let editMockId=null,editErrorId=null;
+let activeSF='All',activeSecF='All';
+
+function load(){
+  try{const s=localStorage.getItem(KEY);if(s)data=JSON.parse(s);}catch(e){}
+  render();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}}
+
+const sec=s=>(parseInt(s.cor)||0)*3-(parseInt(s.wrong)||0);
+const total=m=>sec(m.varc)+sec(m.lrdi)+sec(m.qa);
+const scoreColor=s=>s>=120?'#16a34a':s>=90?'#d97706':'#dc2626';
+const secColors={varc:{bg:'#eff6ff',text:'#1e40af',icon:'📘'},lrdi:{bg:'#f0fdf4',text:'#166534',icon:'🧩'},qa:{bg:'#fff7ed',text:'#9a3412',icon:'🔢'}};
+
+function switchPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(p==='dash')renderDash();
+}
+
+// ── MOCK FORM ──
+function openMockForm(m){
+  editMockId=m?m.id:null;
+  document.getElementById('mock-form-title').textContent=m?'Edit Mock':'Add Mock';
+  document.getElementById('mf-date').value=m?m.date:new Date().toISOString().slice(0,10);
+  document.getElementById('mf-platform').value=m?m.platform:'';
+  document.getElementById('mf-perc').value=m?m.percentile:'';
+  ['v','l','q'].forEach((p,i)=>{
+    const k=['varc','lrdi','qa'][i];
+    document.getElementById('mf-'+p+'a').value=m?m[k].att:'';
+    document.getElementById('mf-'+p+'c').value=m?m[k].cor:'';
+    document.getElementById('mf-'+p+'w').value=m?m[k].wrong:'';
+  });
+  document.getElementById('mf-time').value=m?m.timeMgmt:'';
+  document.getElementById('mf-notes').value=m?m.notes:'';
+  calcScore();
+  document.getElementById('mock-form').style.display='block';
+  document.getElementById('mock-form').scrollIntoView({behavior:'smooth'});
+}
+function closeMockForm(){document.getElementById('mock-form').style.display='none';editMockId=null;}
+function calcScore(){
+  const vs=sec({cor:document.getElementById('mf-vc').value,wrong:document.getElementById('mf-vw').value});
+  const ls=sec({cor:document.getElementById('mf-lc').value,wrong:document.getElementById('mf-lw').value});
+  const qs=sec({cor:document.getElementById('mf-qc').value,wrong:document.getElementById('mf-qw').value});
+  document.getElementById('mf-vs').textContent=vs;
+  document.getElementById('mf-ls').textContent=ls;
+  document.getElementById('mf-qs').textContent=qs;
+  document.getElementById('mf-total').textContent=vs+ls+qs;
+}
+function saveMock(){
+  const m={
+    id:editMockId||Date.now(),
+    date:document.getElementById('mf-date').value,
+    platform:document.getElementById('mf-platform').value,
+    percentile:document.getElementById('mf-perc').value,
+    varc:{att:document.getElementById('mf-va').value,cor:document.getElementById('mf-vc').value,wrong:document.getElementById('mf-vw').value},
+    lrdi:{att:document.getElementById('mf-la').value,cor:document.getElementById('mf-lc').value,wrong:document.getElementById('mf-lw').value},
+    qa:{att:document.getElementById('mf-qa').value,cor:document.getElementById('mf-qc').value,wrong:document.getElementById('mf-qw').value},
+    timeMgmt:document.getElementById('mf-time').value,
+    notes:document.getElementById('mf-notes').value,
+  };
+  if(editMockId)data.mocks=data.mocks.map(x=>x.id===editMockId?m:x);
+  else data.mocks.push(m);
+  save();closeMockForm();render();
+}
+function deleteMock(id){if(confirm('Delete this mock?')){data.mocks=data.mocks.filter(m=>m.id!==id);save();render();}}
+
+// ── ERROR FORM ──
+function openErrorForm(e){
+  editErrorId=e?e.id:null;
+  document.getElementById('ef-title').textContent=e?'Edit Error':'Log Error';
+  document.getElementById('ef-mock').value=e?e.mockNo:'';
+  document.getElementById('ef-sec').value=e?e.section:'VARC';
+  document.getElementById('ef-qno').value=e?e.qNo:'';
+  document.getElementById('ef-topic').value=e?e.topic:'';
+  document.getElementById('ef-type').value=e?e.errorType:'Wrong (Concept)';
+  document.getElementById('ef-status').value=e?e.status:'To Revise';
+  document.getElementById('ef-my').value=e?e.myApproach:'';
+  document.getElementById('ef-correct').value=e?e.correctApproach:'';
+  document.getElementById('ef-gap').value=e?e.conceptGap:'';
+  document.getElementById('ef-action').value=e?e.action:'';
+  document.getElementById('error-form').style.display='block';
+  document.getElementById('error-form').scrollIntoView({behavior:'smooth'});
+}
+function closeErrorForm(){document.getElementById('error-form').style.display='none';editErrorId=null;}
+function saveError(){
+  const e={
+    id:editErrorId||Date.now(),
+    mockNo:document.getElementById('ef-mock').value,
+    section:document.getElementById('ef-sec').value,
+    qNo:document.getElementById('ef-qno').value,
+    topic:document.getElementById('ef-topic').value,
+    errorType:document.getElementById('ef-type').value,
+    status:document.getElementById('ef-status').value,
+    myApproach:document.getElementById('ef-my').value,
+    correctApproach:document.getElementById('ef-correct').value,
+    conceptGap:document.getElementById('ef-gap').value,
+    action:document.getElementById('ef-action').value,
+  };
+  if(editErrorId)data.errors=data.errors.map(x=>x.id===editErrorId?e:x);
+  else data.errors.push(e);
+  save();closeErrorForm();render();
+}
+function deleteError(id){if(confirm('Delete this error?')){data.errors=data.errors.filter(e=>e.id!==id);save();render();}}
+function updateStatus(id,status){data.errors=data.errors.map(e=>e.id===id?{...e,status}:e);save();render();}
+
+// ── FILTERS ──
+function filterStatus(s,btn){
+  activeSF=s;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderErrors();
+}
+function filterSection(s){activeSecF=s;renderErrors();}
+
+// ── EXPORT / IMPORT ──
+function exportData(){
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='CAT_Mock_Backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{try{data=JSON.parse(ev.target.result);save();render();alert('Data imported!');}catch(err){alert('Invalid file.');}};
+  reader.readAsText(file);
+}
+
+// ── RENDER ──
+function render(){
+  renderSidebar();
+  renderMocks();
+  renderErrors();
+  renderFiltersCount();
+}
+
+function renderSidebar(){
+  document.getElementById('s-mocks').textContent=data.mocks.length;
+  document.getElementById('s-errors').textContent=data.errors.length;
+  document.getElementById('s-revise').textContent=data.errors.filter(e=>e.status==='To Revise').length;
+  document.getElementById('s-mastered').textContent=data.errors.filter(e=>e.status==='Mastered').length;
+}
+function renderFiltersCount(){
+  document.getElementById('f-all').textContent=data.errors.length;
+  document.getElementById('f-tr').textContent=data.errors.filter(e=>e.status==='To Revise').length;
+  document.getElementById('f-ro').textContent=data.errors.filter(e=>e.status==='Revised Once').length;
+  document.getElementById('f-m').textContent=data.errors.filter(e=>e.status==='Mastered').length;
+}
+
+function renderMocks(){
+  const el=document.getElementById('mock-list');
+  if(!data.mocks.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><p>No mocks logged yet.<br>Hit <b>+ Add Mock</b> to get started.</p></div>`;return;
+  }
+  el.innerHTML=[...data.mocks].reverse().map((m,i)=>{
+    const n=data.mocks.length-i;
+    const ts=total(m);const col=scoreColor(ts);
+    return `<div class="card">
+      <div class="card-top">
+        <div class="card-left">
+          <div class="mock-badge">${n}</div>
+          <div class="card-meta">
+            <div class="date">Mock ${n} &nbsp;<span class="plat">${m.date}${m.platform?' · '+m.platform:''}</span></div>
+            ${m.notes?`<div class="note">${m.notes}</div>`:''}
+          </div>
+        </div>
+        <div class="card-right">
+          ${m.percentile?`<span class="chip chip-purple">${m.percentile}%ile</span>`:''}
+          <span class="chip" style="background:${col}20;color:${col};font-size:13px;padding:4px 10px">${ts} pts</span>
+          ${m.timeMgmt?`<span class="chip chip-blue">⏱ ${m.timeMgmt}/5</span>`:''}
+          <button class="icon-btn" onclick='openMockForm(${JSON.stringify(m)})' title="Edit">✏️</button>
+          <button class="icon-btn" onclick="deleteMock(${m.id})" title="Delete">🗑️</button>
+        </div>
+      </div>
+      <div class="sec-scores">
+        ${['varc','lrdi','qa'].map(s=>{
+          const sc=secColors[s];
+          return `<div class="sec-score" style="background:${sc.bg};border-color:${sc.bg}">
+            <div class="ssl" style="color:${sc.text}">${sc.icon} ${s.toUpperCase()}</div>
+            <div class="ssv" style="color:${sc.text}">${sec(m[s])}</div>
+            <div class="sss">${m[s].cor||0}✓ &nbsp;${m[s].wrong||0}✗ &nbsp;${m[s].att||0}att</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+const sBg={'To Revise':'#fee2e2','Revised Once':'#fef9c3','Mastered':'#dcfce7'};
+const sTx={'To Revise':'#991b1b','Revised Once':'#854d0e','Mastered':'#166534'};
+const errorTypes=['Wrong (Concept)','Wrong (Silly)','Wrong (Misread)','Correct but Unsure','Left (Time)','Left (Hard)'];
+const eTags={'Wrong (Concept)':'chip-red','Wrong (Silly)':'chip-gold','Wrong (Misread)':'chip-gold','Correct but Unsure':'chip-purple','Left (Time)':'chip-blue','Left (Hard)':'chip-blue'};
+
+function renderErrors(){
+  const filtered=data.errors.filter(e=>{
+    return (activeSF==='All'||e.status===activeSF)&&(activeSecF==='All'||e.section===activeSecF);
+  });
+  const el=document.getElementById('error-list');
+  if(!filtered.length){
+    el.innerHTML=`<div class="empty"><div class="empty-icon">${data.errors.length?'🔍':'✅'}</div><p>${data.errors.length?'No errors match this filter.':'No errors logged yet.<br>Every wrong question is a future mark gained.'}</p></div>`;return;
+  }
+  el.innerHTML=[...filtered].reverse().map(e=>`<div class="error-card">
+    <div class="error-top">
+      <div class="error-tags">
+        <span class="chip chip-navy">M${e.mockNo} Q${e.qNo}</span>
+        <span class="chip chip-blue">${e.section}</span>
+        <b style="font-size:13px">${e.topic}</b>
+        <span class="chip ${eTags[e.errorType]||'chip-gold'}">${e.errorType}</span>
+      </div>
+      <div style="display:flex;gap:5px;align-items:center">
+        <select class="status-select" style="background:${sBg[e.status]};color:${sTx[e.status]}" onchange="updateStatus(${e.id},this.value)">
+          <option ${e.status==='To Revise'?'selected':''}>To Revise</option>
+          <option ${e.status==='Revised Once'?'selected':''}>Revised Once</option>
+          <option ${e.status==='Mastered'?'selected':''}>Mastered</option>
+        </select>
+        <button class="icon-btn" onclick='openErrorForm(${JSON.stringify(e)})'>✏️</button>
+        <button class="icon-btn" onclick="deleteError(${e.id})">🗑️</button>
+      </div>
+    </div>
+    ${(e.myApproach||e.correctApproach||e.conceptGap||e.action)?`<div class="error-body">
+      ${e.myApproach?`<div class="mini-card" style="background:#fef2f2"><div class="mc-label">My Approach</div><div class="mc-text">${e.myApproach}</div></div>`:''}
+      ${e.correctApproach?`<div class="mini-card" style="background:#f0fdf4"><div class="mc-label">Correct Approach</div><div class="mc-text">${e.correctApproach}</div></div>`:''}
+      ${e.conceptGap?`<div class="mini-card" style="background:#fffbeb"><div class="mc-label">Concept Gap</div><div class="mc-text">${e.conceptGap}</div></div>`:''}
+      ${e.action?`<div class="mini-card" style="background:#eff6ff"><div class="mc-label">Action Item</div><div class="mc-text">${e.action}</div></div>`:''}
+    </div>`:''}
+  </div>`).join('');
+}
+
+function renderDash(){
+  const mocks=data.mocks,errors=data.errors;
+  document.getElementById('d-mocks').textContent=mocks.length;
+  document.getElementById('d-best').textContent=mocks.length?Math.max(...mocks.map(total)):'—';
+  document.getElementById('d-avg').textContent=mocks.length?(mocks.reduce((a,m)=>a+total(m),0)/mocks.length).toFixed(1):'—';
+  const wp=mocks.filter(m=>m.percentile);
+  document.getElementById('d-perc').textContent=wp.length?(wp.reduce((a,m)=>a+parseFloat(m.percentile),0)/wp.length).toFixed(1)+'%':'—';
+  document.getElementById('d-tr').textContent=errors.filter(e=>e.status==='To Revise').length;
+  document.getElementById('d-ro').textContent=errors.filter(e=>e.status==='Revised Once').length;
+  document.getElementById('d-ma').textContent=errors.filter(e=>e.status==='Mastered').length;
+
+  const tb=document.getElementById('trend-bars');
+  if(!mocks.length){tb.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:10px 0">No mocks logged yet.</div>';}
+  else{
+    const maxS=Math.max(...mocks.map(total),100);
+    tb.innerHTML=mocks.map((m,i)=>{
+      const ts=total(m);const h=Math.max(10,(ts/maxS)*85);const col=scoreColor(ts);
+      return `<div class="trend-bar-wrap">
+        <div class="trend-score" style="color:${col}">${ts}</div>
+        <div class="trend-bar" style="height:${h}px;background:${col};width:100%"></div>
+        <div class="trend-label">M${i+1}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Section averages
+  const sa=document.getElementById('sec-avgs');
+  const secKeys=['varc','lrdi','qa'];
+  sa.innerHTML=secKeys.map(k=>{
+    const avg=mocks.length?(mocks.reduce((a,m)=>a+sec(m[k]),0)/mocks.length).toFixed(1):'—';
+    const sc=secColors[k];
+    return `<div style="background:${sc.bg};border-radius:10px;padding:12px;text-align:center;border:1px solid ${sc.bg}">
+      <div style="font-size:11px;font-weight:700;color:${sc.text};text-transform:uppercase;margin-bottom:4px">${sc.icon} ${k.toUpperCase()}</div>
+      <div style="font-size:24px;font-weight:800;color:${sc.text}">${avg}</div>
+      <div style="font-size:10px;color:#64748b">avg score</div>
+    </div>`;
+  }).join('');
+
+  // Error breakdown
+  const eb=document.getElementById('err-breakdown');
+  const counts=errorTypes.map(t=>({type:t,count:errors.filter(e=>e.errorType===t).length})).sort((a,b)=>b.count-a.count);
+  const maxC=Math.max(...counts.map(c=>c.count),1);
+  eb.innerHTML=counts.map(({type,count})=>`<div class="err-row">
+    <div class="err-type">${type}</div>
+    <div class="err-bar-bg"><div class="err-bar" style="width:${(count/maxC)*100}%;background:${count>0?'#dc2626':'#e2e8f0'}"></div></div>
+    <div class="err-count" style="color:${count>0?'#dc2626':'#94a3b8'}">${count}</div>
+  </div>`).join('');
+}
+
+load();
+</script>
+</body>
+</html>
